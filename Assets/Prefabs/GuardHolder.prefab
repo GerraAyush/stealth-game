@@ -124,6 +124,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!136 &997288542102826474
 CapsuleCollider:
@@ -161,8 +162,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Guard
   speed: 5
-  waitTime: 0.3
-  turnSpeed: 15
+  waitTime: 0.2
+  turnSpeed: 50
   pathHolder: {fileID: 4657040474981290298}
   spotlight: {fileID: 3160979318816164392}
   viewDistance: 10
@@ -303,14 +304,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6136762123431033745}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 0
   m_Color: {r: 1, g: 0.96609664, b: 0.2924527, a: 1}
   m_Intensity: 5
   m_Range: 13
   m_SpotAngle: 60
   m_InnerSpotAngle: 1
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1

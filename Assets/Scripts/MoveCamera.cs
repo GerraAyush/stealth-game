@@ -2,25 +2,44 @@ using UnityEngine;
 
 public class MoveCamera : MonoBehaviour
 {
+    [SerializeField] private float followSpeed;
+    [SerializeField] private float rotateSpeed;
     private Player player;
-    private float radius;
-    private Vector3 previousPlayerPosition;
+    private Vector3 offset;
 
     void Start()
     {
         player = GameObject.FindAnyObjectByType<Player>();
-        radius = Vector3.Distance(player.transform.position, transform.position);
-        previousPlayerPosition = player.transform.position;
+        offset = Quaternion.Inverse(player.transform.rotation) * (transform.position - player.transform.position);
     }
 
     void Update()
     {
-        Vector3 currentPlayerPosition = player.transform.position;
-        Vector3 movementDir = (currentPlayerPosition - previousPlayerPosition).normalized;
-        if (movementDir != Vector3.zero) {
-            transform.position = currentPlayerPosition - (movementDir * radius);
-            transform.forward = movementDir;
-            previousPlayerPosition = currentPlayerPosition;
-        }
+        // Desired position
+        Vector3 desiredPosition =
+            player.transform.position +
+            player.transform.rotation * offset;
+
+        // Smooth follow
+        transform.position = Vector3.Lerp(
+            transform.position,
+            desiredPosition,
+            followSpeed * Time.deltaTime
+        );
+
+        // Look at player
+        Quaternion playerRotation = Quaternion.LookRotation(
+            player.transform.position - transform.position
+        );
+
+        Vector3 euler = playerRotation.eulerAngles;
+        euler.x = 30f;
+        euler.z = 0f;
+
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            Quaternion.Euler(euler),
+            rotateSpeed * Time.deltaTime
+        );
     }
 }
