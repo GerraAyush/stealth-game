@@ -1,14 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public class Player : MonoBehaviour
 {
     [SerializeField] private float movementSpeed = 50f;
     [SerializeField] private float smoothMoveTime = 0.1f;
     [SerializeField] private float turnSpeed = 50f;
-
-    private bool movementDisabled = false;
+    private Vector3 initialPlayerPosition, initialPlayerRotation;
+    private bool movementDisabled;
     private float angle, smoothMoveVelocity, smoothInputMagnitude;
     private InputAction moveAction;
     private Vector3 velocity;
@@ -21,7 +20,9 @@ public class Player : MonoBehaviour
 
         // Initialize components
         rb = GetComponent<Rigidbody>();
-        angle = transform.eulerAngles.y;
+        initialPlayerPosition = transform.position;
+        initialPlayerRotation = transform.eulerAngles;
+        movementDisabled = true;
     }
 
     void Update()
@@ -66,5 +67,13 @@ public class Player : MonoBehaviour
 
     public void Caught() {
         movementDisabled = true;
+    }
+
+    public void Reset()
+    {
+        transform.position = initialPlayerPosition;
+        transform.rotation = Quaternion.Euler(initialPlayerRotation);
+        angle = transform.eulerAngles.y;
+        movementDisabled = false;
     }
 }

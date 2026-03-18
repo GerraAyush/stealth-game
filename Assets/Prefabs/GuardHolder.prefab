@@ -161,7 +161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cecb311f9f951c54f9980cbdb59f9a89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Guard
-  speed: 5
+  speed: 10
   waitTime: 0.2
   turnSpeed: 50
   pathHolder: {fileID: 4657040474981290298}

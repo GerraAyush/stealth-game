@@ -5,7 +5,7 @@ using Enumerators;
 
 public class Guard : MonoBehaviour
 {
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private float speed = 50f;
     [SerializeField] private float waitTime = 0.2f;
     [SerializeField] private float turnSpeed = 50f;
     [SerializeField] private Transform pathHolder;
@@ -20,6 +20,15 @@ public class Guard : MonoBehaviour
     private float viewAngle;
     private GuardPhase currentGuardPhase;
     private Vector3[] waypoints;
+    private GameManager gameManager;
+    private Vector3 guardInitialPosition, guardInitialRotation;
+
+    public void Reset()
+    {
+        transform.position = guardInitialPosition;
+        transform.rotation = Quaternion.Euler(guardInitialRotation);
+        currentGuardPhase = GuardPhase.Patrol;
+    }
 
     bool CanSeePlayer(Transform target)
     {
@@ -39,7 +48,6 @@ public class Guard : MonoBehaviour
     {
         isPatrolling = true;
         isChasing = false;
-        transform.position = waypoints[0];
 
         int targetWaypointIndex = 0;
         Vector3 targetWaypoint = waypoints[targetWaypointIndex];
@@ -60,17 +68,22 @@ public class Guard : MonoBehaviour
 
     IEnumerator FollowPlayer() {
         isChasing = true;
+        gameManager.AlertChase(false);
         isPatrolling = false;
 
-        Transform playerTransform = playerInRange.transform;
         while (currentGuardPhase == GuardPhase.Chase) {
-            transform.LookAt(playerTransform.position);
-            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, speed * Time.deltaTime);
-            if (Vector3.Distance(transform.position, playerTransform.position) < 1.5f) {
+            transform.LookAt(playerInRange.transform.position);
+            transform.position = Vector3.MoveTowards(transform.position, playerInRange.transform.position, speed * Time.deltaTime);
+            if (Vector3.Distance(transform.position, playerInRange.transform.position) < 1.5f) {
                 playerInRange.Caught();
                 currentGuardPhase = GuardPhase.Stop;
+                gameManager.GameOver();
             }
             yield return null;
+        }
+
+        if (currentGuardPhase != GuardPhase.Stop) {
+            gameManager.AlertChase(true);
         }
     }
 
@@ -91,14 +104,10 @@ public class Guard : MonoBehaviour
     {
         while (true)
         {
-            if (playerInRange != null)
-            {
-                isPlayerVisible = CanSeePlayer(playerInRange.transform);
-                if (currentGuardPhase != GuardPhase.Stop) {
-                    currentGuardPhase = isPlayerVisible ? GuardPhase.Chase : GuardPhase.Patrol;
-                }
+            isPlayerVisible = playerInRange != null && CanSeePlayer(playerInRange.transform);
+            if (currentGuardPhase != GuardPhase.Stop) {
+                currentGuardPhase = isPlayerVisible ? GuardPhase.Chase : GuardPhase.Patrol;
             }
-
             yield return new WaitForSeconds(0.3f);
         }
     }
@@ -121,8 +130,12 @@ public class Guard : MonoBehaviour
             waypoints[idx] = new Vector3(waypoints[idx].x, transform.position.y, waypoints[idx].z);
         }
 
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
         StartCoroutine(FollowPath());
         StartCoroutine(CheckGuardVision());
+        guardInitialPosition = transform.position;
+        guardInitialRotation = transform.eulerAngles;
     }
 
     void Update()
@@ -173,6 +186,7 @@ public class Guard : MonoBehaviour
         {
             playerInRange = null;
             isPlayerVisible = false;
+            currentGuardPhase = GuardPhase.Patrol;
         }
     }
 
