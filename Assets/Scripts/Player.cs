@@ -7,11 +7,44 @@ public class Player : MonoBehaviour
     [SerializeField] private float smoothMoveTime = 0.1f;
     [SerializeField] private float turnSpeed = 50f;
     private Vector3 initialPlayerPosition, initialPlayerRotation;
-    private bool movementDisabled;
+    private bool movementDisabled, beingChased;
     private float angle, smoothMoveVelocity, smoothInputMagnitude;
     private InputAction moveAction;
     private Vector3 velocity;
     private Rigidbody rb;
+
+
+    // Public Methods
+
+    public void DisableMovement() {
+        movementDisabled = true;
+    }
+
+    public void EnableMovement() {
+        movementDisabled = false;
+    }
+
+    public void Reset()
+    {
+        transform.position = initialPlayerPosition;
+        transform.rotation = Quaternion.Euler(initialPlayerRotation);
+        angle = transform.eulerAngles.y;
+    }
+
+    public bool IsBeingChased() {
+        return beingChased;
+    }
+
+    public void SetBeingChased() {
+        beingChased = true;
+    }
+
+    public void UnSetBeingChased() {
+        beingChased = false;
+    }
+
+
+    // Lifecycle Methods
 
     void Start()
     {
@@ -23,6 +56,7 @@ public class Player : MonoBehaviour
         initialPlayerPosition = transform.position;
         initialPlayerRotation = transform.eulerAngles;
         movementDisabled = true;
+        beingChased = false;
     }
 
     void Update()
@@ -63,17 +97,5 @@ public class Player : MonoBehaviour
             rb.MoveRotation(Quaternion.Euler(Vector3.up * angle));
             rb.MovePosition(rb.position + velocity);
         }
-    }
-
-    public void Caught() {
-        movementDisabled = true;
-    }
-
-    public void Reset()
-    {
-        transform.position = initialPlayerPosition;
-        transform.rotation = Quaternion.Euler(initialPlayerRotation);
-        angle = transform.eulerAngles.y;
-        movementDisabled = false;
     }
 }

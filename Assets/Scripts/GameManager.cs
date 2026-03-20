@@ -1,94 +1,74 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using TMPro;
-using System;
+using Enumerators;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameObject canvas;
-    [SerializeField] private TMP_Text messageText;
-    [SerializeField] private float uiTime;
-    [SerializeField] private float messageTime;
+    
+    [SerializeField] private UIManager uiManager;
     private Player player;
-    private bool beingChased = false;
-    private Guard[] guards;
-    private Image menuPanel;
+    private GuardManager guardManager;
+    
 
-    void Start()
-    {
-        menuPanel = canvas.GetComponentInChildren<Image>();
-        Button[] buttons = menuPanel.GetComponentsInChildren<Button>();
-        Button startButton = buttons[0];
-        Button exitButton = buttons[1];
+    // Public Methods
 
-        startButton.onClick.AddListener(StartGame);
-        exitButton.onClick.AddListener(QuitGame);
+    public void notify(GameState gameState) {
+        switch(gameState) {
+            case GameState.Player_Being_Chased:
+                if (!player.IsBeingChased()) {
+                    player.SetBeingChased();
+                    uiManager.ShowChaseStartedAlert();
+                }
+                break;
 
-        player = GameObject.Find("Player").GetComponent<Player>();
-        guards = GameObject.Find("Guards").GetComponentsInChildren<Guard>();
-        messageText.gameObject.SetActive(false);
-    }
+            case GameState.Player_Juked_Chased:
+                if (player.IsBeingChased()) {
+                    player.UnSetBeingChased();
+                    uiManager.ShowChaseEndedAlert();
+                }
+                break;
 
-    public void GameOver() {
-        StartCoroutine(EndGame());
-    }
-
-    IEnumerator EndGame() {
-        messageText.text = "Game Over";
-        messageText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(uiTime);
-        messageText.gameObject.SetActive(false);
-        menuPanel.gameObject.SetActive(true);
-    }
-
-    public void StartGame()
-    {
-        menuPanel.gameObject.SetActive(false);
-        player.Reset();
-        foreach (Guard guard in guards) {
-            guard.Reset();
+            case GameState.Player_Got_Caught:
+                player.DisableMovement();
+                guardManager.DisableGuardMovements();
+                uiManager.ShowGameOverUI();
+                break;
+            
         }
     }
 
-    public void QuitGame()
+
+    // Private Methods
+
+    private void StartGame()
+    {
+        uiManager.SetMenuInActive();
+
+        player.Reset();
+        guardManager.ResetGuards();
+
+        player.EnableMovement();
+        guardManager.EnableGuardMovements();
+    }
+
+    private void QuitGame()
     {
         Application.Quit();
     }
 
-    IEnumerator ChaseStart() {
-        messageText.text = "Chase Started";
-        messageText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(messageTime);
-        messageText.gameObject.SetActive(false);
+
+    // Lifecycle Methods
+
+    void Awake() {
+        guardManager = GameObject.Find("GuardManager").GetComponent<GuardManager>();
     }
 
-    IEnumerator ChaseEnd() {
-        messageText.text = "Chase Ended";
-        messageText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(messageTime);
-        messageText.gameObject.SetActive(false);
+    void Start()
+    {
+        player = GameObject.Find("Player").GetComponent<Player>();
     }
 
-    
-    public void AlertChase(bool end) {
-        if (end) {
-            if (!beingChased) {
-                return;
-            }
-
-            beingChased = false;
-            StartCoroutine(ChaseEnd());
-        }
-
-        else {
-            if (beingChased) {
-                return;
-            }
-
-            beingChased = true;
-            StartCoroutine(ChaseStart());
-        }
-
+    void OnEnable() {
+        UIManager.OnStartGameClicked += StartGame;
+        UIManager.OnStartGameClicked += QuitGame;
     }
 }

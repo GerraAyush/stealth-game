@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 997288542102826474}
   - component: {fileID: 3302826323926153783}
   - component: {fileID: 2993358825908400879}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Guard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -164,6 +164,7 @@ MonoBehaviour:
   speed: 10
   waitTime: 0.2
   turnSpeed: 50
+  catchDistance: 1
   pathHolder: {fileID: 4657040474981290298}
   spotlight: {fileID: 3160979318816164392}
   viewDistance: 10
@@ -274,7 +275,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2594704443554744196}
   - component: {fileID: 3160979318816164392}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -372,7 +373,7 @@ GameObject:
   - component: {fileID: 854210956436793999}
   - component: {fileID: 8959808949257868832}
   - component: {fileID: 8521953430615359019}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
