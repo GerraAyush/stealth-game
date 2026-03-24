@@ -3,25 +3,34 @@ using Enumerators;
 
 public class GameManager : MonoBehaviour
 {
-    
+    public static GameManager Instance { get; private set; }
     [SerializeField] private UIManager uiManager;
+    public int CountOfChasers { get; private set; }
     private Player player;
-    private GuardManager guardManager;
-    
+    private Guard[] guards;
+
 
     // Public Methods
 
-    public void notify(GameState gameState) {
-        switch(gameState) {
+    public void notify(GameState gameState)
+    {
+        switch (gameState)
+        {
             case GameState.Player_Being_Chased:
-                if (!player.IsBeingChased()) {
+                CountOfChasers++;
+
+                if (!player.IsBeingChased())
+                {
                     player.SetBeingChased();
                     uiManager.ShowChaseStartedAlert();
                 }
                 break;
 
             case GameState.Player_Juked_Chased:
-                if (player.IsBeingChased()) {
+                CountOfChasers--;
+
+                if (player.IsBeingChased() && CountOfChasers == 0)
+                {
                     player.UnSetBeingChased();
                     uiManager.ShowChaseEndedAlert();
                 }
@@ -29,10 +38,13 @@ public class GameManager : MonoBehaviour
 
             case GameState.Player_Got_Caught:
                 player.DisableMovement();
-                guardManager.DisableGuardMovements();
+                foreach (Guard guard in guards)
+                {
+                    guard.DisableMovement();
+                }
                 uiManager.ShowGameOverUI();
                 break;
-            
+
         }
     }
 
@@ -44,10 +56,16 @@ public class GameManager : MonoBehaviour
         uiManager.SetMenuInActive();
 
         player.Reset();
-        guardManager.ResetGuards();
+        foreach (Guard guard in guards)
+        {
+            guard.Reset();
+        }
 
         player.EnableMovement();
-        guardManager.EnableGuardMovements();
+        foreach (Guard guard in guards)
+        {
+            guard.EnableMovement();
+        }
     }
 
     private void QuitGame()
@@ -58,8 +76,16 @@ public class GameManager : MonoBehaviour
 
     // Lifecycle Methods
 
-    void Awake() {
-        guardManager = GameObject.Find("GuardManager").GetComponent<GuardManager>();
+    void Awake()
+    {
+        guards = FindObjectsByType<Guard>(FindObjectsSortMode.None);
+
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        Instance = this;
     }
 
     void Start()
@@ -67,7 +93,8 @@ public class GameManager : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<Player>();
     }
 
-    void OnEnable() {
+    void OnEnable()
+    {
         UIManager.OnStartGameClicked += StartGame;
         UIManager.OnStartGameClicked += QuitGame;
     }
