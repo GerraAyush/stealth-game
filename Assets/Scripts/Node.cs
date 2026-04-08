@@ -29,19 +29,21 @@ namespace BehaviourTrees
 
         public override Status Process()
         {
-            foreach (var child in children)
+            foreach (var child in SortedChildren)
             {
                 switch (child.Process())
                 {
                     case Status.Running:
                         return Status.Running;
                     case Status.Success:
+                        Reset();
                         return Status.Success;
                     default:
                         continue;
                 }
             }
 
+            Reset();
             return Status.Failure;
         }
     }

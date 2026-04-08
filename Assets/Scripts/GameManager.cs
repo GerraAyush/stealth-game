@@ -8,19 +8,19 @@ public class GameManager : MonoBehaviour
     public int CountOfChasers { get; private set; }
     private Player player;
     private Guard[] guards;
+    public bool IsGameOn {get; private set;}
 
 
     // Public Methods
 
-    public void notify(GameState gameState)
+    public void Notify(GameState gameState)
     {
         switch (gameState)
         {
             case GameState.Player_Being_Chased:
-                CountOfChasers++;
-
                 if (!player.IsBeingChased())
                 {
+                    CountOfChasers++;
                     player.SetBeingChased();
                     uiManager.ShowChaseStartedAlert();
                 }
@@ -29,8 +29,9 @@ public class GameManager : MonoBehaviour
             case GameState.Player_Juked_Chased:
                 CountOfChasers--;
 
-                if (player.IsBeingChased() && CountOfChasers == 0)
+                if (player.IsBeingChased() && CountOfChasers <= 0)
                 {
+                    CountOfChasers = 0;
                     player.UnSetBeingChased();
                     uiManager.ShowChaseEndedAlert();
                 }
@@ -43,6 +44,7 @@ public class GameManager : MonoBehaviour
                     guard.DisableMovement();
                 }
                 uiManager.ShowGameOverUI();
+                IsGameOn = false;
                 break;
 
         }
@@ -54,6 +56,9 @@ public class GameManager : MonoBehaviour
     private void StartGame()
     {
         uiManager.SetMenuInActive();
+
+        IsGameOn = true;
+        CountOfChasers = 0;
 
         player.Reset();
         foreach (Guard guard in guards)
@@ -96,6 +101,12 @@ public class GameManager : MonoBehaviour
     void OnEnable()
     {
         UIManager.OnStartGameClicked += StartGame;
-        UIManager.OnStartGameClicked += QuitGame;
+        UIManager.OnQuitClicked += QuitGame;
+    }
+
+    void OnDisable()
+    {
+        UIManager.OnStartGameClicked -= StartGame;
+        UIManager.OnQuitClicked -= QuitGame;
     }
 }

@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour {
     [SerializeField] private GameObject canvas;
     [SerializeField] private TMP_Text messageText;
-    [SerializeField] private readonly float uiTime;
-    [SerializeField] private readonly float messageTime;
+    [SerializeField] private float uiTime;
+    [SerializeField] private float messageTime;
 
     private Image menuPanel;
     public static event Action OnStartGameClicked;

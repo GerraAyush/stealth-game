@@ -1,12 +1,7 @@
-using System.Collections;
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using Enumerators;
 
 
-[RequireComponent(typeof(Light))]
-[RequireComponent(typeof(SphereCollider))]
 public class Guard : MonoBehaviour
 {
     [SerializeField] private float speed = 50f;
@@ -62,11 +57,13 @@ public class Guard : MonoBehaviour
     }
 
     void Update() {
-        CatchDistance = catchDistance;
-        AnomalyDistance = anomalyDistance;
+        if (GameManager.Instance.IsGameOn) {
+            CatchDistance = catchDistance;
+            AnomalyDistance = anomalyDistance;
 
-        guardSensor.Update(Time.deltaTime);
-        guardStateMachine.Update();
+            guardSensor.Update(Time.deltaTime);
+            guardStateMachine.Update();
+        }
     }
 
     void OnTriggerEnter(Collider other) => OnTriggerEntered.Invoke(other);

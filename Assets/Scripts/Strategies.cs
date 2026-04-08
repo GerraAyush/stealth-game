@@ -77,6 +77,7 @@ namespace BehaviourTrees
     {
         private GuardSensor guardSensor;
         private GuardMovement guardMovement;
+        private bool isChasing = false;
 
         public ChaseStrategy(GuardSensor guardSensor, GuardMovement guardMovement)
         {
@@ -90,16 +91,29 @@ namespace BehaviourTrees
 
             if (target == null) return Node.Status.Failure;
 
+            guardMovement.EnableMovement();
             guardMovement.SetDestination(target.transform.position);
 
-            GameManager.Instance.notify(GameState.Player_Being_Chased);
+            if (!isChasing)
+            {
+                isChasing = true;
+                GameManager.Instance.Notify(GameState.Player_Being_Chased);
+            }
+
             guardMovement.LookAt();
             guardMovement.MoveStep();
 
             return Node.Status.Running;
         }
 
-        public void Reset() { }
+        public void Reset()
+        {
+            if (isChasing)
+            {
+                isChasing = false;
+                GameManager.Instance.Notify(GameState.Player_Juked_Chased);
+            }
+        }
     }
 
     public class CatchStrategy : IStrategy
@@ -115,17 +129,20 @@ namespace BehaviourTrees
 
         public Node.Status Process()
         {
-            guardMovement.DisableMovement();
-
             if (guardSensor.InCatchRange())
             {
-                GameManager.Instance.notify(GameState.Player_Got_Caught);
+                guardMovement.DisableMovement();
+                GameManager.Instance.Notify(GameState.Player_Got_Caught);
                 return Node.Status.Success;
             }
 
             return Node.Status.Failure;
         }
 
-        public void Reset() { }
+        public void Reset()
+        {
+            guardMovement.EnableMovement();
+        }
+
     }
 }

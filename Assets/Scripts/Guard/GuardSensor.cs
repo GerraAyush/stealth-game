@@ -61,14 +61,16 @@ public class GuardSensor
 
             if (detectedPlayer != null) {
                 isPlayerVisible = IsTargetVisible(detectedPlayer.transform);
-
-                if (isPlayerVisible != lastVisibilityStatus)
-                {
-                    SetViewDistance(isPlayerVisible ? chaseViewDistance : viewDistance);
-                    ChangeColor();
-                }
+            } else {
+                isPlayerVisible = false;
             }
 
+            if (isPlayerVisible != lastVisibilityStatus)
+            {
+                SetViewDistance(isPlayerVisible ? chaseViewDistance : viewDistance);
+            }
+
+            ChangeColor();
             timer.Start();
         };
         timer.Start();
